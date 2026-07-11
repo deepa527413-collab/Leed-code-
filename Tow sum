@@ -1,0 +1,63 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+#include <stdlib.h>
+
+#define SIZE 20011
+
+typedef struct Node {
+    int key;
+    int index;
+    struct Node *next;
+} Node;
+
+Node *hashTable[SIZE];
+
+int hash(int key) {
+    int h = key % SIZE;
+    return (h < 0) ? h + SIZE : h;
+}
+
+void insert(int key, int index) {
+    int h = hash(key);
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    newNode->key = key;
+    newNode->index = index;
+    newNode->next = hashTable[h];
+    hashTable[h] = newNode;
+}
+
+Node *search(int key) {
+    int h = hash(key);
+    Node *curr = hashTable[h];
+    while (curr) {
+        if (curr->key == key)
+            return curr;
+        curr = curr->next;
+    }
+    return NULL;
+}
+
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    // Initialize hash table
+    for (int i = 0; i < SIZE; i++)
+        hashTable[i] = NULL;
+
+    for (int i = 0; i < numsSize; i++) {
+        int complement = target - nums[i];
+        Node *found = search(complement);
+
+        if (found) {
+            int *result = (int *)malloc(2 * sizeof(int));
+            result[0] = found->index;
+            result[1] = i;
+            *returnSize = 2;
+            return result;
+        }
+
+        insert(nums[i], i);
+    }
+
+    *returnSize = 0;
+    return NULL;
+}
